@@ -29,6 +29,8 @@ namespace Client
         private ManualResetEvent sendDone = new ManualResetEvent(false);
         private ManualResetEvent receiveDone = new ManualResetEvent(false);
 
+        public event EventHandler<StringBuilder> OnResponse;
+
         // The response from the remote device.
         private string response = string.Empty;
 
@@ -82,6 +84,8 @@ namespace Client
                 client.Shutdown(SocketShutdown.Both);
                 client.Close();
 
+                OnResponse.Invoke(this, new StringBuilder(response));
+
             }
             catch (Exception e)
             {
@@ -99,8 +103,7 @@ namespace Client
                 // Complete the connection.
                 client.EndConnect(ar);
 
-                Console.WriteLine("Socket connected to {0}",
-                    client.RemoteEndPoint.ToString());
+                Console.WriteLine("Socket connected to {0}", client.RemoteEndPoint.ToString());
 
                 // Signal that the connection has been made.
                 connectDone.Set();
@@ -183,7 +186,7 @@ namespace Client
 
                 // Complete sending the data to the remote device.
                 int bytesSent = client.EndSend(ar);
-                Console.WriteLine("Sent {0} bytes to server.", bytesSent);
+                //Console.WriteLine("Sent {0} bytes to server.", bytesSent);
 
                 // Signal that all bytes have been sent.
                 sendDone.Set();

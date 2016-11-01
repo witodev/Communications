@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 
 namespace Server
 {
@@ -8,25 +7,18 @@ namespace Server
         static void Main(string[] args)
         {
             var server = new AsyncServer();
-            server.OnRespond += Server_OnRespond1;
+            server.OnResponse += Server_OnResponse;
             server.StartListening();
             
             Console.WriteLine("Exit...");
             Console.ReadKey();
         }
 
-        private static void Server_OnRespond1(object sender, StateObject e)
+        private static void Server_OnResponse(object sender, System.Text.StringBuilder e)
         {
-            var time = int.Parse(e.sb.ToString());
-            e.sb.Append("\tServer: ");
-            e.sb.Append(time % 2 == 0 ? "even" : "odd");
-        }
-
-        private void Server_OnRespond(object sender, StringBuilder e)
-        {
-            e.Append("\tServer: ");
-            var now = DateTime.Now.Millisecond.ToString();
-            e.Append(now);
+            var time = int.Parse(e.ToString());
+            e.Clear();
+            e.Append(time % 2 == 0 ? "even" : "odd");
         }
     }
 }

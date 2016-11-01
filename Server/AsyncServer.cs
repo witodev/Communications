@@ -23,7 +23,7 @@ namespace Server
     {
         // Thread signal.
         public ManualResetEvent allDone = new ManualResetEvent(false);
-        public event EventHandler<StateObject> OnRespond;
+        public event EventHandler<StringBuilder> OnResponse;
 
         public AsyncServer()
         {
@@ -129,7 +129,7 @@ namespace Server
                     // with modif event
                     state.sb.Clear();
                     state.sb.Append(content);
-                    OnRespond.Invoke(this, state);
+                    OnResponse.Invoke(this, state.sb);
                     content = state.sb.ToString();
                     Send(handler, content);
                 }
