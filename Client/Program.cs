@@ -10,6 +10,19 @@ namespace Client
     {
         static void Main(string[] args)
         {
+            var client = new Client("127.0.0.1", 9876);
+
+            client.Send("Siema");
+            var respond = client.Respond;
+            Console.WriteLine(respond);
+            
+
+            client.Send("exit");
+            respond = client.Respond;
+            Console.WriteLine(respond);
+
+            Console.WriteLine("Client exit...");
+            Console.ReadKey();
         }
     }
 }
