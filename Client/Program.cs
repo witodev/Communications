@@ -10,7 +10,8 @@ namespace Client
     {
         static void Main(string[] args)
         {
-            AsyncClient.StartClient();
+            var client = new AsyncClient();
+            client.StartClient();
 
             Console.WriteLine("Exit...");
             Console.ReadKey();

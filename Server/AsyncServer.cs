@@ -22,13 +22,13 @@ namespace Server
     public class AsyncServer
     {
         // Thread signal.
-        public static ManualResetEvent allDone = new ManualResetEvent(false);
+        public ManualResetEvent allDone = new ManualResetEvent(false);
 
         public AsyncServer()
         {
         }
 
-        public static void StartListening()
+        public void StartListening()
         {
             // Data buffer for incoming data.
             byte[] bytes = new Byte[1024];
@@ -76,7 +76,7 @@ namespace Server
 
         }
 
-        public static void AcceptCallback(IAsyncResult ar)
+        public void AcceptCallback(IAsyncResult ar)
         {
             // Signal the main thread to continue.
             allDone.Set();
@@ -92,7 +92,7 @@ namespace Server
                 new AsyncCallback(ReadCallback), state);
         }
 
-        public static void ReadCallback(IAsyncResult ar)
+        public void ReadCallback(IAsyncResult ar)
         {
             String content = String.Empty;
 
@@ -131,7 +131,7 @@ namespace Server
             }
         }
 
-        private static void Send(Socket handler, String data)
+        private void Send(Socket handler, String data)
         {
             // Convert the string data to byte data using ASCII encoding.
             byte[] byteData = Encoding.ASCII.GetBytes(data);
@@ -141,7 +141,7 @@ namespace Server
                 new AsyncCallback(SendCallback), handler);
         }
 
-        private static void SendCallback(IAsyncResult ar)
+        private void SendCallback(IAsyncResult ar)
         {
             try
             {

@@ -10,7 +10,8 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            AsyncServer.StartListening();
+            var server = new AsyncServer();
+            server.StartListening();
 
             Console.WriteLine("Exit...");
             Console.ReadKey();
