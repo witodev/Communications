@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Client
 {
@@ -16,6 +11,7 @@ namespace Client
                 var client = new AsyncClient();
                 var now = DateTime.Now.Millisecond.ToString();
                 client.StartClient(now);
+                Console.WriteLine("From server: " + client.Response);
             }
             Console.WriteLine("Exit...");
             Console.ReadKey();

@@ -30,7 +30,9 @@ namespace Client
         private ManualResetEvent receiveDone = new ManualResetEvent(false);
 
         // The response from the remote device.
-        private String response = String.Empty;
+        private string response = string.Empty;
+
+        public string Response { get { return response; } }
 
         public void StartClient(string toSend = "")
         {
@@ -58,7 +60,7 @@ namespace Client
                 IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
 
                 // Create a TCP/IP socket.
-                Socket client = new Socket(AddressFamily.InterNetwork,                    SocketType.Stream, ProtocolType.Tcp);
+                Socket client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
                 // Connect to the remote endpoint.
                 client.BeginConnect(remoteEP,
@@ -74,7 +76,7 @@ namespace Client
                 receiveDone.WaitOne();
 
                 // Write the response to the console.
-                Console.WriteLine("Response received : {0}", response);
+                //Console.WriteLine("Response received : {0}", response);
 
                 // Release the socket.
                 client.Shutdown(SocketShutdown.Both);
