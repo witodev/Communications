@@ -10,10 +10,12 @@ namespace Client
 {
     class SyncClient
     {
-        public static void StartClient()
+        private int size = 1024;
+
+        public void StartClient(string send)
         {
             // Data buffer for incoming data.
-            byte[] bytes = new byte[1024];
+            byte[] bytes = new byte[size];
 
             // Connect to a remote device.
             try
@@ -37,7 +39,7 @@ namespace Client
                         sender.RemoteEndPoint.ToString());
 
                     // Encode the data string into a byte array.
-                    byte[] msg = Encoding.ASCII.GetBytes("This is a test<EOF>");
+                    byte[] msg = Encoding.ASCII.GetBytes(send + "<EOF>");
 
                     // Send the data through the socket.
                     int bytesSent = sender.Send(msg);

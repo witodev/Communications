@@ -10,7 +10,9 @@ namespace Client
     {
         static void Main(string[] args)
         {
-            SyncClient.StartClient();
+            var now = DateTime.Now;
+            var client = new SyncClient();
+            client.StartClient(now.ToString());
             
             Console.WriteLine("Exit...");
             Console.ReadKey();

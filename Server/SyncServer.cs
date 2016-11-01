@@ -11,12 +11,14 @@ namespace Server
     class SyncServer
     {
         // Incoming data from the client.
-        public static string data = null;
+        public string data = null;
+        private int id = 0;
+        private int size = 1024;
 
-        public static void StartListening()
+        public void StartListening()
         {
             // Data buffer for incoming data.
-            byte[] bytes = new Byte[1024];
+            byte[] bytes = new Byte[size];
 
             // Establish the local endpoint for the socket.
             // Dns.GetHostName returns the name of the 
@@ -47,7 +49,7 @@ namespace Server
                     // An incoming connection needs to be processed.
                     while (true)
                     {
-                        bytes = new byte[1024];
+                        bytes = new byte[size];
                         int bytesRec = handler.Receive(bytes);
                         data += Encoding.ASCII.GetString(bytes, 0, bytesRec);
                         if (data.IndexOf("<EOF>") > -1)
@@ -60,7 +62,8 @@ namespace Server
                     Console.WriteLine("Text received : {0}", data);
 
                     // Echo the data back to the client.
-                    byte[] msg = Encoding.ASCII.GetBytes(data);
+                    var toSend = "Client " + id++;
+                    byte[] msg = Encoding.ASCII.GetBytes(toSend);
 
                     handler.Send(msg);
                     handler.Shutdown(SocketShutdown.Both);
