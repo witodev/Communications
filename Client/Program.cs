@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Client
@@ -10,9 +11,12 @@ namespace Client
     {
         static void Main(string[] args)
         {
-            var now = DateTime.Now;
-            var client = new SyncClient();
-            client.StartClient(now.ToString());
+            for (var i = 0; i < 5; i++)
+            {
+                var now = DateTime.Now.Millisecond;
+                var client = new SyncClient();
+                client.StartClient(now.ToString());
+            }
             
             Console.WriteLine("Exit...");
             Console.ReadKey();

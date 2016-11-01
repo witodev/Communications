@@ -13,6 +13,7 @@ namespace Server
         // Incoming data from the client.
         public string data = null;
         private int id = 0;
+        public event EventHandler<StringBuilder> OnRespond;
         private int size = 1024;
 
         public void StartListening()
@@ -62,8 +63,10 @@ namespace Server
                     Console.WriteLine("Text received : {0}", data);
 
                     // Echo the data back to the client.
-                    var toSend = "Client " + id++;
-                    byte[] msg = Encoding.ASCII.GetBytes(toSend);
+                    var toSend = new StringBuilder();
+                    toSend.Append(data);
+                    OnRespond.Invoke(this, toSend);
+                    byte[] msg = Encoding.ASCII.GetBytes(toSend.ToString());
 
                     handler.Send(msg);
                     handler.Shutdown(SocketShutdown.Both);
