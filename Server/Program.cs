@@ -11,6 +11,11 @@ namespace Server
     {
         static void Main(string[] args)
         {
+            var server = new AsyncServer();
+            server.StartListening();
+
+            Console.WriteLine("Exit...");
+            Console.ReadKey();
             var server = new SyncServer();
             server.OnRespond += Server_OnRespond;
             server.StartListening();
