@@ -12,10 +12,18 @@ namespace Server
         static void Main(string[] args)
         {
             var server = new AsyncServer();
+            server.OnRespond += Server_OnRespond1;
             server.StartListening();
             
             Console.WriteLine("Exit...");
             Console.ReadKey();
+        }
+
+        private static void Server_OnRespond1(object sender, StateObject e)
+        {
+            var now = DateTime.Now.Millisecond.ToString();
+            e.sb.Append("\tServer: ");
+            e.sb.Append(now);
         }
 
         private void Server_OnRespond(object sender, StringBuilder e)
