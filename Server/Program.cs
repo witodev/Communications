@@ -10,6 +10,9 @@ namespace Server
     {
         static void Main(string[] args)
         {
+            var server = new Server();
+            server.Port = 9876;
+            server.Start();
         }
     }
 }
