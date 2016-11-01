@@ -37,7 +37,7 @@ namespace Server
             // The DNS name of the computer
             // running the listener is "host.contoso.com".
             IPHostEntry ipHostInfo = Dns.GetHostEntry("MYPC");
-            IPAddress ipAddress = ipHostInfo.AddressList[0];
+            IPAddress ipAddress = ipHostInfo.AddressList[2];
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
 
             // Create a TCP/IP socket.
