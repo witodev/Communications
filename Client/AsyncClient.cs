@@ -22,7 +22,7 @@ namespace Client
     public class AsyncClient
     {
         // The port number for the remote device.
-        private const int port = 11000;
+        private const int port = 9876;
 
         // ManualResetEvent instances signal completion.
         private ManualResetEvent connectDone = new ManualResetEvent(false);
@@ -32,21 +32,33 @@ namespace Client
         // The response from the remote device.
         private String response = String.Empty;
 
-        public void StartClient()
+        public void StartClient(string toSend = "")
         {
             // Connect to a remote device.
             try
             {
                 // Establish the remote endpoint for the socket.
-                // The name of the 
-                // remote device is "host.contoso.com".
-                IPHostEntry ipHostInfo = Dns.GetHostEntry("MYPC");
-                IPAddress ipAddress = ipHostInfo.AddressList[2];
+
+                IPHostEntry ipHostInfo = Dns.GetHostEntry("wito.hopto.org");
+
+                Console.WriteLine("Host info:");
+                int i = 0;
+                for (i = 0; i < ipHostInfo.AddressList.Length; i++)
+                {
+                    var item = ipHostInfo.AddressList[i].ToString();
+                    Console.WriteLine(item);
+
+                    if (item.Contains("."))
+                    {
+                        break;
+                    }
+                }
+
+                IPAddress ipAddress = ipHostInfo.AddressList[i];
                 IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
 
                 // Create a TCP/IP socket.
-                Socket client = new Socket(AddressFamily.InterNetwork,
-                    SocketType.Stream, ProtocolType.Tcp);
+                Socket client = new Socket(AddressFamily.InterNetwork,                    SocketType.Stream, ProtocolType.Tcp);
 
                 // Connect to the remote endpoint.
                 client.BeginConnect(remoteEP,
@@ -54,7 +66,7 @@ namespace Client
                 connectDone.WaitOne();
 
                 // Send test data to the remote device.
-                Send(client, "This is a test<EOF>");
+                Send(client, toSend + "<EOF>");
                 sendDone.WaitOne();
 
                 // Receive the response from the remote device.

@@ -32,14 +32,27 @@ namespace Server
         public void StartListening()
         {
             // Data buffer for incoming data.
-            byte[] bytes = new Byte[1024];
+            byte[] bytes = new byte[1024];
 
             // Establish the local endpoint for the socket.
-            // The DNS name of the computer
-            // running the listener is "host.contoso.com".
+
             IPHostEntry ipHostInfo = Dns.GetHostEntry("MYPC");
-            IPAddress ipAddress = ipHostInfo.AddressList[2];
-            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
+
+            Console.WriteLine("Host info:");
+            int i;
+            for (i = 0; i < ipHostInfo.AddressList.Length; i++)
+            {
+                var item = ipHostInfo.AddressList[i].ToString();
+                Console.WriteLine(item);
+
+                if (item.Contains("."))
+                {
+                    break;
+                }
+            }
+            IPAddress ipAddress = ipHostInfo.AddressList[i];
+            //IPAddress ipAddress = IPAddress.Parse("192.168.1.10");
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 9876);
 
             // Create a TCP/IP socket.
             Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -109,8 +122,13 @@ namespace Server
                 {
                     // All the data has been read from the 
                     // client. Display it on the console.
-                    Console.WriteLine("Read {0} bytes from socket. \n Data : {1}", content.Length, content);
+                    // but remove <EOF> tag
+                    Console.WriteLine("Read {0} bytes from socket.", content.Length);
+                    content = content.Substring(0, content.Length - 5);
                     // Echo the data back to the client.
+                    // with modif event
+                    state.sb.Clear();
+                    state.sb.Append(content);
                     OnRespond.Invoke(this, state);
                     content = state.sb.ToString();
                     Send(handler, content);

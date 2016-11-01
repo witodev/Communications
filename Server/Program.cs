@@ -21,20 +21,16 @@ namespace Server
 
         private static void Server_OnRespond1(object sender, StateObject e)
         {
-            var now = DateTime.Now.Millisecond.ToString();
+            var time = int.Parse(e.sb.ToString());
             e.sb.Append("\tServer: ");
-            e.sb.Append(now);
+            e.sb.Append(time % 2 == 0 ? "even" : "odd");
         }
 
         private void Server_OnRespond(object sender, StringBuilder e)
         {
             e.Append("\tServer: ");
             var now = DateTime.Now.Millisecond.ToString();
-            Thread.Sleep(1000);
-            var sleep = DateTime.Now.Millisecond.ToString();
             e.Append(now);
-            e.Append("\t");
-            e.Append(sleep);
         }
     }
 }

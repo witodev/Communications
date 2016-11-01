@@ -11,9 +11,12 @@ namespace Client
     {
         static void Main(string[] args)
         {
-            var client = new AsyncClient();
-            client.StartClient();
-
+            for (var i = 0; i < 5; i++)
+            {
+                var client = new AsyncClient();
+                var now = DateTime.Now.Millisecond.ToString();
+                client.StartClient(now);
+            }
             Console.WriteLine("Exit...");
             Console.ReadKey();
         }
