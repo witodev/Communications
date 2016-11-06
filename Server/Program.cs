@@ -7,6 +7,7 @@ namespace Server
         static void Main(string[] args)
         {
             var server = new AsyncServer();
+            server.Port = 9876;
             server.OnResponse += Server_OnResponse;
             server.StartListening();
             
