@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System;  
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -25,6 +25,19 @@ namespace Server
         public ManualResetEvent allDone = new ManualResetEvent(false);
         public event EventHandler<StringBuilder> OnResponse;
 
+        private int _port = 9876;
+        public int Port
+        {
+            get
+            {
+                return _port;
+            }
+            set
+            {
+                _port = value;
+            }
+        }
+        
         public AsyncServer()
         {
         }
@@ -36,23 +49,23 @@ namespace Server
 
             // Establish the local endpoint for the socket.
 
-            IPHostEntry ipHostInfo = Dns.GetHostEntry("MYPC");
+            //IPHostEntry ipHostInfo = Dns.GetHostEntry(_ipAdress);
 
-            Console.WriteLine("Host info:");
-            int i;
-            for (i = 0; i < ipHostInfo.AddressList.Length; i++)
-            {
-                var item = ipHostInfo.AddressList[i].ToString();
-                Console.WriteLine(item);
+            //Console.WriteLine("Host info:");
+            //int i;
+            //for (i = 0; i < ipHostInfo.AddressList.Length; i++)
+            //{
+            //    var item = ipHostInfo.AddressList[i].ToString();
+            //    Console.WriteLine(item);
 
-                if (item.Contains("."))
-                {
-                    break;
-                }
-            }
-            IPAddress ipAddress = ipHostInfo.AddressList[i];
-            //IPAddress ipAddress = IPAddress.Parse("192.168.1.10");
-            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 9876);
+            //    if (item.Contains("."))
+            //    {
+            //        break;
+            //    }
+            //}
+            //IPAddress ipAddress = ipHostInfo.AddressList[i];
+            IPAddress ipAddress = IPAddress.Parse("0.0.0.0");
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, _port);
 
             // Create a TCP/IP socket.
             Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);

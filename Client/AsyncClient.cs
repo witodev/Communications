@@ -21,8 +21,11 @@ namespace Client
 
     public class AsyncClient
     {
+        public int Port { get { return port; } set { port = value; } }
+        public string Server { get; set; }
+
         // The port number for the remote device.
-        private const int port = 9876;
+        private int port = 9876;
 
         // ManualResetEvent instances signal completion.
         private ManualResetEvent connectDone = new ManualResetEvent(false);
@@ -33,8 +36,73 @@ namespace Client
 
         // The response from the remote device.
         private string response = string.Empty;
+        private Socket client;
 
         public string Response { get { return response; } }
+
+        public void Start()
+        {
+            try
+            {
+                // Establish the remote endpoint for the socket.
+
+                IPHostEntry ipHostInfo = Dns.GetHostEntry(Server);
+
+                Console.WriteLine("Host info:");
+                int i = 0;
+                for (i = 0; i < ipHostInfo.AddressList.Length; i++)
+                {
+                    var item = ipHostInfo.AddressList[i].ToString();
+                    Console.WriteLine(item);
+
+                    if (item.Contains("."))
+                    {
+                        break;
+                    }
+                }
+
+                IPAddress ipAddress = ipHostInfo.AddressList[i];
+                IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
+
+                // Create a TCP/IP socket.
+                client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+                // Connect to the remote endpoint.
+                client.BeginConnect(remoteEP,
+                    new AsyncCallback(ConnectCallback), client);
+                connectDone.WaitOne();
+            }
+            catch   (Exception e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+            }
+        }
+
+        public void Send(string toSend)
+        { 
+            // Send test data to the remote device.
+            Send(client, toSend + "<EOF>");
+            sendDone.WaitOne();
+        }
+
+        public string Receive()
+        {
+            // Receive the response from the remote device.
+            Receive(client);
+            receiveDone.WaitOne();
+            if (OnResponse!=null)
+                OnResponse.Invoke(this, new StringBuilder(response));
+            return response;
+        }
+
+        public void Close()
+        {
+            // Release the socket.
+            client.Shutdown(SocketShutdown.Both);
+            client.Close();
+        }
+
+        // OLD METHODS ------------------------------------------------------
 
         public void StartClient(string toSend = "")
         {
@@ -43,7 +111,7 @@ namespace Client
             {
                 // Establish the remote endpoint for the socket.
 
-                IPHostEntry ipHostInfo = Dns.GetHostEntry("wito.hopto.org");
+                IPHostEntry ipHostInfo = Dns.GetHostEntry(Server);
 
                 Console.WriteLine("Host info:");
                 int i = 0;
@@ -84,7 +152,8 @@ namespace Client
                 client.Shutdown(SocketShutdown.Both);
                 client.Close();
 
-                OnResponse.Invoke(this, new StringBuilder(response));
+                if (OnResponse!=null)
+                    OnResponse.Invoke(this, new StringBuilder(response));
 
             }
             catch (Exception e)
