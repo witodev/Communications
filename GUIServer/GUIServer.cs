@@ -93,6 +93,7 @@ namespace GUIServer
                     listener.BeginAccept(new AsyncCallback(AcceptClient), listener); // listen for client
                     allDone.WaitOne(); // wait for connection
                 }
+                AddText("END");
             }
             catch (Exception exp)
             {
@@ -103,20 +104,29 @@ namespace GUIServer
 
         private void AcceptClient(IAsyncResult ar)
         {
-            var listener = (Socket)ar.AsyncState;
-            var clientSocket = listener.EndAccept(ar);
-            
-            allDone.Set();
+            try
+            {
+                var listener = (Socket)ar.AsyncState;
+                var clientSocket = listener.EndAccept(ar);
 
-            var client = new ConnectedClient();
-            client.ID = (ulong)_clients.Count;
-            client.socket = clientSocket;
-            client.state = EState.Connected;
+                allDone.Set();
 
-            _clients.Add(client);
-            UpdateClientList();
-            
-            clientSocket.BeginReceive(client.buffer, 0, ConnectedClient.MaxBuffer, SocketFlags.None, new AsyncCallback(ReceiveClient), client);
+                var client = new ConnectedClient();
+                client.ID = (ulong)_clients.Count;
+                client.socket = clientSocket;
+                client.state = EState.Connected;
+
+                _clients.Add(client);
+                UpdateClientList();
+
+                clientSocket.BeginReceive(client.buffer, 0, ConnectedClient.MaxBuffer, SocketFlags.None, new AsyncCallback(ReceiveClient), client);
+
+            }
+            catch (Exception exp)
+            {
+                working = false;
+                allDone.Set();
+            }
         }
 
         private void ReceiveClient(IAsyncResult ar)
@@ -175,6 +185,17 @@ namespace GUIServer
         private void GUIServer_FormClosed(object sender, FormClosedEventArgs e)
         {
 
+        }
+
+        private void END(object sender, PaintEventArgs e)
+        { 
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            working = false;
+            allDone.Set();
         }
     }
 
