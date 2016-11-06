@@ -105,7 +105,7 @@ namespace GUIServer
         {
             var listener = (Socket)ar.AsyncState;
             var clientSocket = listener.EndAccept(ar);
-
+            
             allDone.Set();
 
             var client = new ConnectedClient();
@@ -115,19 +115,8 @@ namespace GUIServer
 
             _clients.Add(client);
             UpdateClientList();
-
-            while(client.state == EState.Connected)
-            {
-                receiveDone.Reset();
-                client.sb.Clear();
-                clientSocket.BeginReceive(client.buffer, 0, ConnectedClient.MaxBuffer, SocketFlags.None, new AsyncCallback(ReceiveClient), client);
-                receiveDone.WaitOne();
-                client.CheckStatus();
-            }
-
-            clientSocket.Shutdown(SocketShutdown.Both);
-            clientSocket.Close();
-            UpdateClientList();
+            
+            clientSocket.BeginReceive(client.buffer, 0, ConnectedClient.MaxBuffer, SocketFlags.None, new AsyncCallback(ReceiveClient), client);
         }
 
         private void ReceiveClient(IAsyncResult ar)
@@ -145,7 +134,8 @@ namespace GUIServer
             catch (Exception exp)
             {
                 client.state = EState.Disconected;
-                receiveDone.Set();
+                // close connection
+                CloseClient(client);
                 return;
             }
 
@@ -162,6 +152,8 @@ namespace GUIServer
                     // All the data has been read from the 
                     // client. Display it on the console.
                     AddText(string.Format("Read {0} bytes from socket: {1}", content.Length, content));
+                    client.sb.Clear();
+                    socket.BeginReceive(client.buffer, 0, ConnectedClient.MaxBuffer, SocketFlags.None, new AsyncCallback(ReceiveClient), client);
                 }
                 else
                 {
@@ -169,6 +161,15 @@ namespace GUIServer
                     socket.BeginReceive(client.buffer, 0, ConnectedClient.MaxBuffer, 0, new AsyncCallback(ReceiveClient), client);
                 }
             }
+        }
+
+        private void CloseClient(ConnectedClient client)
+        {
+            var socket = client.socket;
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
+            _clients.Remove(client);
+            UpdateClientList();
         }
 
         private void GUIServer_FormClosed(object sender, FormClosedEventArgs e)
