@@ -25,6 +25,9 @@ namespace Server
         public ManualResetEvent allDone = new ManualResetEvent(false);
         public event EventHandler<StringBuilder> OnResponse;
 
+        private string _ipAdress = "Acer";
+        private int _port = 9876;
+
         public AsyncServer()
         {
         }
@@ -36,7 +39,7 @@ namespace Server
 
             // Establish the local endpoint for the socket.
 
-            IPHostEntry ipHostInfo = Dns.GetHostEntry("MYPC");
+            IPHostEntry ipHostInfo = Dns.GetHostEntry(_ipAdress);
 
             Console.WriteLine("Host info:");
             int i;
@@ -52,7 +55,7 @@ namespace Server
             }
             IPAddress ipAddress = ipHostInfo.AddressList[i];
             //IPAddress ipAddress = IPAddress.Parse("192.168.1.10");
-            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 9876);
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, _port);
 
             // Create a TCP/IP socket.
             Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
