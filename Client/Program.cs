@@ -6,22 +6,21 @@ namespace Client
     {
         static void Main(string[] args)
         {
-            for (var i = 0; i < 5; i++)
-            {
-                var client = new AsyncClient();
-                client.Server = "MYPC";
-                client.Port = 9876;
-                client.Start();
+            var client = new AsyncClient();
+            client.Server = "MYPC";
+            client.Port = 9876;
+            client.Start();
 
-                var now = DateTime.Now.Millisecond.ToString();
-                Console.WriteLine("To server: " + now);
+            var now = DateTime.Now.Millisecond.ToString();
+            Console.WriteLine("To server: " + now);
                 
-                //client.StartClient(now);
-                client.Send("close");
-                client.OnResponse += Client_OnResponse;
-                client.Receive();
-                client.Close();
-            }
+            //client.StartClient(now);
+            client.OnResponse += Client_OnResponse;
+            
+            client.Send("close");
+            client.Receive();
+
+            client.Close();            
 
             Console.WriteLine("Exit...");
             Console.ReadKey();

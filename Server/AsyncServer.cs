@@ -26,6 +26,7 @@ namespace Server
 
         // Thread signal.
         public ManualResetEvent allDone = new ManualResetEvent(false);
+        private ManualResetEvent sendDone = new ManualResetEvent(false);
         public event EventHandler<StringBuilder> OnResponse;
 
         private int _port = 9876;
@@ -101,13 +102,15 @@ namespace Server
 
         private void AcceptCallback(IAsyncResult ar)
         {
-            // Signal the main thread to continue.
-            allDone.Set();
-
             // Get the socket that handles the client request.
             Socket listener = (Socket)ar.AsyncState;
             Socket handler = listener.EndAccept(ar);
             _clients.Add(handler);
+            Console.WriteLine("\tClients count: " + _clients.Count);
+
+            // Signal the main thread to continue.
+            allDone.Set();
+
             // Create the state object.
             StateObject state = new StateObject();
             state.workSocket = handler;
@@ -143,13 +146,21 @@ namespace Server
                     content = content.Substring(0, content.Length - 5);
                     // Echo the data back to the client.
                     // with modif event
+                    var close = false;
+                    if (content.IndexOf("close") > -1)
+                    {
+                        close = true;
+                    }
                     state.sb.Clear();
                     state.sb.Append(content);
                     OnResponse.Invoke(this, state.sb);
                     content = state.sb.ToString();
                     Send(handler, content);
-                    if (content.IndexOf("close") > -1)
+
+                    if (close)
+                    {
                         CloseClient(handler);
+                    }
                 }
                 else
                 {
@@ -161,6 +172,7 @@ namespace Server
 
         private void Send(Socket handler, String data)
         {
+            sendDone.Reset();
             // Convert the string data to byte data using ASCII encoding.
             byte[] byteData = Encoding.ASCII.GetBytes(data);
 
@@ -179,6 +191,7 @@ namespace Server
                 int bytesSent = handler.EndSend(ar);
                 Console.WriteLine("Sent {0} bytes to client.", bytesSent);
 
+                sendDone.Set();
                 //CloseClient(handler);
             }
             catch (Exception e)
@@ -189,6 +202,7 @@ namespace Server
 
         private void CloseClient(Socket handler)
         {
+            sendDone.WaitOne();
             handler.Shutdown(SocketShutdown.Both);
             handler.Close();
             _clients.Remove(handler);

@@ -4,24 +4,24 @@ namespace Server
 {
     class Program
     {
+        static int counter = 0;
+
         static void Main(string[] args)
         {
-            var server = new AsyncServer();
+            var server = new MyServer();
             server.Port = 9876;
             server.OnResponse += Server_OnResponse;
-            server.StartListening();
-            
+            server.Start();
+
             Console.WriteLine("Exit...");
             Console.ReadKey();
         }
 
         private static void Server_OnResponse(object sender, System.Text.StringBuilder e)
         {
-            var s = (AsyncServer)sender;
-            var count = s._clients.Count;
             var msg = e.ToString();
             e.Clear();
-            e.Append("You are client: " + count);
+            e.Append("Echo: " + msg + " - client: " + counter++);
         }
     }
 }

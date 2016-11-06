@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="AsyncServer.cs" />
     <Compile Include="Client.cs" />
+    <Compile Include="MyServer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server.cs" />
