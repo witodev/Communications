@@ -30,8 +30,8 @@
         {
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.button1 = new System.Windows.Forms.Button();
             this.txtPort = new System.Windows.Forms.TextBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.lClients = new System.Windows.Forms.ListBox();
             this.txtLog = new System.Windows.Forms.TextBox();
@@ -54,7 +54,7 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(420, 486);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(628, 367);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // flowLayoutPanel1
@@ -65,8 +65,16 @@
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(420, 30);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(628, 30);
             this.flowLayoutPanel1.TabIndex = 0;
+            // 
+            // txtPort
+            // 
+            this.txtPort.Location = new System.Drawing.Point(3, 3);
+            this.txtPort.Name = "txtPort";
+            this.txtPort.Size = new System.Drawing.Size(67, 20);
+            this.txtPort.TabIndex = 1;
+            this.txtPort.Text = "9876";
             // 
             // button1
             // 
@@ -78,36 +86,28 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // txtPort
-            // 
-            this.txtPort.Location = new System.Drawing.Point(3, 3);
-            this.txtPort.Name = "txtPort";
-            this.txtPort.Size = new System.Drawing.Size(67, 20);
-            this.txtPort.TabIndex = 1;
-            this.txtPort.Text = "9876";
-            // 
             // tableLayoutPanel2
             // 
             this.tableLayoutPanel2.ColumnCount = 2;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 62.5F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 37.5F));
             this.tableLayoutPanel2.Controls.Add(this.lClients, 1, 0);
             this.tableLayoutPanel2.Controls.Add(this.txtLog, 0, 0);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 33);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(414, 430);
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(622, 311);
             this.tableLayoutPanel2.TabIndex = 1;
             // 
             // lClients
             // 
             this.lClients.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lClients.FormattingEnabled = true;
-            this.lClients.Location = new System.Drawing.Point(210, 3);
+            this.lClients.Location = new System.Drawing.Point(391, 3);
             this.lClients.Name = "lClients";
-            this.lClients.Size = new System.Drawing.Size(201, 424);
+            this.lClients.Size = new System.Drawing.Size(228, 305);
             this.lClients.TabIndex = 0;
             // 
             // txtLog
@@ -116,14 +116,14 @@
             this.txtLog.Location = new System.Drawing.Point(3, 3);
             this.txtLog.Multiline = true;
             this.txtLog.Name = "txtLog";
-            this.txtLog.Size = new System.Drawing.Size(201, 424);
+            this.txtLog.Size = new System.Drawing.Size(382, 305);
             this.txtLog.TabIndex = 1;
             // 
             // GUIServer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(420, 486);
+            this.ClientSize = new System.Drawing.Size(628, 367);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "GUIServer";
             this.Text = "Server";

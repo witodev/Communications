@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConnectedClient.cs" />
     <Compile Include="GUIServer.cs">
       <SubType>Form</SubType>
     </Compile>
