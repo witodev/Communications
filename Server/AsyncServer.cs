@@ -22,7 +22,7 @@ namespace Server
 
     public class AsyncServer
     {
-        private List<Socket> _clients = new List<Socket>();
+        public List<Socket> _clients = new List<Socket>();
 
         // Thread signal.
         public ManualResetEvent allDone = new ManualResetEvent(false);
@@ -179,7 +179,7 @@ namespace Server
                 int bytesSent = handler.EndSend(ar);
                 Console.WriteLine("Sent {0} bytes to client.", bytesSent);
 
-                CloseClient(handler);
+                //CloseClient(handler);
             }
             catch (Exception e)
             {
@@ -191,6 +191,7 @@ namespace Server
         {
             handler.Shutdown(SocketShutdown.Both);
             handler.Close();
+            _clients.Remove(handler);
         }
     }
 }

@@ -17,9 +17,11 @@ namespace Server
 
         private static void Server_OnResponse(object sender, System.Text.StringBuilder e)
         {
+            var s = (AsyncServer)sender;
+            var count = s._clients.Count;
             var msg = e.ToString();
             e.Clear();
-            e.Append("Server says hi " + msg);
+            e.Append("You are client: " + count);
         }
     }
 }

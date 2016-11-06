@@ -17,7 +17,7 @@ namespace Client
                 Console.WriteLine("To server: " + now);
                 
                 //client.StartClient(now);
-                client.Send(now);
+                client.Send("close");
                 client.OnResponse += Client_OnResponse;
                 client.Receive();
                 client.Close();
