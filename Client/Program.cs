@@ -7,7 +7,7 @@ namespace Client
         static void Main(string[] args)
         {
             var client = new AsyncClient();
-            client.Server = "MYPC";
+            client.Server = "Acer";
             client.Port = 9876;
             client.Start();
 
