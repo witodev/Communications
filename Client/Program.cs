@@ -11,13 +11,13 @@ namespace Client
             client.Port = 9876;
             client.Start();
 
-            var now = DateTime.Now.Millisecond.ToString();
-            Console.WriteLine("To server: " + now);
-                
+            var now = "close";
+
+            Console.WriteLine("To server: " + now);                
             //client.StartClient(now);
             client.OnResponse += Client_OnResponse;
             
-            client.Send("close");
+            client.Send(now);
             client.Receive();
 
             client.Close();            

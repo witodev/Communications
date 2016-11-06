@@ -4,8 +4,6 @@ namespace Server
 {
     class Program
     {
-        static int counter = 0;
-
         static void Main(string[] args)
         {
             var server = new MyServer();
@@ -21,7 +19,7 @@ namespace Server
         {
             var msg = e.ToString();
             e.Clear();
-            e.Append("Echo: " + msg + " - client: " + counter++);
+            e.Append("Echo: " + msg);
         }
     }
 }
