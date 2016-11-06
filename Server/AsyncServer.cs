@@ -1,4 +1,5 @@
-﻿using System;  
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -21,6 +22,8 @@ namespace Server
 
     public class AsyncServer
     {
+        private List<Socket> _clients = new List<Socket>();
+
         // Thread signal.
         public ManualResetEvent allDone = new ManualResetEvent(false);
         public event EventHandler<StringBuilder> OnResponse;
@@ -104,7 +107,7 @@ namespace Server
             // Get the socket that handles the client request.
             Socket listener = (Socket)ar.AsyncState;
             Socket handler = listener.EndAccept(ar);
-
+            _clients.Add(handler);
             // Create the state object.
             StateObject state = new StateObject();
             state.workSocket = handler;
@@ -145,6 +148,8 @@ namespace Server
                     OnResponse.Invoke(this, state.sb);
                     content = state.sb.ToString();
                     Send(handler, content);
+                    if (content.IndexOf("close") > -1)
+                        CloseClient(handler);
                 }
                 else
                 {
@@ -174,14 +179,18 @@ namespace Server
                 int bytesSent = handler.EndSend(ar);
                 Console.WriteLine("Sent {0} bytes to client.", bytesSent);
 
-                handler.Shutdown(SocketShutdown.Both);
-                handler.Close();
-
+                CloseClient(handler);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
             }
+        }
+
+        private void CloseClient(Socket handler)
+        {
+            handler.Shutdown(SocketShutdown.Both);
+            handler.Close();
         }
     }
 }

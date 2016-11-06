@@ -17,9 +17,9 @@ namespace Server
 
         private static void Server_OnResponse(object sender, System.Text.StringBuilder e)
         {
-            var time = int.Parse(e.ToString());
+            var msg = e.ToString();
             e.Clear();
-            e.Append(time % 2 == 0 ? "even" : "odd");
+            e.Append("Server says hi " + msg);
         }
     }
 }
