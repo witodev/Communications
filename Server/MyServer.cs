@@ -19,6 +19,8 @@ namespace Server
         public bool close = false;
         public void Close()
         {
+            //if (close == false)
+            //    return;
             socket.Shutdown(SocketShutdown.Both);
             socket.Close();
         }
@@ -81,6 +83,7 @@ namespace Server
             state.id = _clientCount;
 
             clientSocket.BeginReceive(state.buffer, 0, ClientState.BUFFERSIZE, SocketFlags.None, new AsyncCallback(ReadClient), state);
+            
         }
 
         private void ReadClient(IAsyncResult ar)
@@ -94,9 +97,8 @@ namespace Server
             {
                 state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesRead)); // decode bytes to string
                 var content = state.sb.ToString();
-                if (content.IndexOf("<EOF>")>-1)
+                if (content.IndexOf("<EOF>") > -1)
                 {
-                    sendDone.Reset();
                     content = content.Substring(0, content.Length - 5);
                     state.sb.Clear();
                     state.sb.Append(content);
@@ -109,11 +111,10 @@ namespace Server
                         Send(state, state.sb.ToString());
                     }
 
-                    if (content.IndexOf("close") > -1)
-                    {
-                        state.close = true;
-                        CloseClient(clientSocket);
-                    }
+                    //if (content.IndexOf("close") > -1)
+                    //{
+                    //    clientSocket.BeginDisconnect(false, new AsyncCallback(DisconnectClient), state);
+                    //}
                 }
             }
             else
@@ -122,16 +123,10 @@ namespace Server
             }
         }
 
-        private void Send(Socket clientSocket, string msg)
-        {
-            var byteToSend = Encoding.ASCII.GetBytes(msg); // convert string to bytes
-            clientSocket.BeginSend(byteToSend, 0, byteToSend.Length, SocketFlags.None, new AsyncCallback(SendClient), clientSocket);
-        }
-
         private void Send(ClientState state, string msg)
         {
             var byteToSend = Encoding.ASCII.GetBytes(msg); // convert string to bytes
-            var clientSocket = (Socket)state.socket;
+            var clientSocket = state.socket;
             clientSocket.BeginSend(byteToSend, 0, byteToSend.Length, SocketFlags.None, new AsyncCallback(SendClient), state);
         }
 
@@ -142,8 +137,9 @@ namespace Server
                 var state = (ClientState)ar.AsyncState;
                 var clientSocket = state.socket;
                 var byteSent = clientSocket.EndSend(ar);
-                sendDone.Set();         
-                //CloseClient(clientSocket);
+                clientSocket.BeginDisconnect(false, new AsyncCallback(DisconnectClient), state);
+            
+                sendDone.Set();
             }
             catch (Exception e)
             {
@@ -151,9 +147,17 @@ namespace Server
             }
         }
 
-        private void CloseClient(Socket clientSocket)
+        private void DisconnectClient(IAsyncResult ar)
         {
             sendDone.WaitOne();
+            var state = (ClientState)ar.AsyncState;
+            var clientSocket = state.socket;
+            clientSocket.EndDisconnect(ar);
+            CloseClient(clientSocket);
+        }
+
+        private void CloseClient(Socket clientSocket)
+        {
             clientSocket.Shutdown(SocketShutdown.Both);
             clientSocket.Close();
             _clients.Remove(clientSocket);
