@@ -10,7 +10,7 @@ namespace Client
             for (var i = 0; i < 5; i++)
             {
                 var client = new AsyncClient();
-                client.Server = "Acer";
+                client.Server = "MYPC";
                 client.Port = 9876;
 
                 var now = DateTime.Now.Millisecond.ToString();

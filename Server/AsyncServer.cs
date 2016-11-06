@@ -96,7 +96,7 @@ namespace Server
             }
         }
 
-        public void AcceptCallback(IAsyncResult ar)
+        private void AcceptCallback(IAsyncResult ar)
         {
             // Signal the main thread to continue.
             allDone.Set();
