@@ -109,11 +109,11 @@ namespace Server
                         Send(state, state.sb.ToString());
                     }
 
-                    //if (content.IndexOf("close") > -1)
-                    //{
-                    //    state.close = true;
-                    //    CloseClient(clientSocket);
-                    //}
+                    if (content.IndexOf("close") > -1)
+                    {
+                        state.close = true;
+                        CloseClient(clientSocket);
+                    }
                 }
             }
             else
@@ -143,7 +143,7 @@ namespace Server
                 var clientSocket = state.socket;
                 var byteSent = clientSocket.EndSend(ar);
                 sendDone.Set();         
-                CloseClient(clientSocket);
+                //CloseClient(clientSocket);
             }
             catch (Exception e)
             {
