@@ -22,7 +22,7 @@ namespace Client
     public class AsyncClient
     {
         public int Port { get { return port; } set { port = value; } }
-        public string ServerIP { get; set; }
+        public string Server { get; set; }
 
         // The port number for the remote device.
         private int port = 9876;
@@ -46,7 +46,7 @@ namespace Client
             {
                 // Establish the remote endpoint for the socket.
 
-                IPHostEntry ipHostInfo = Dns.GetHostEntry(ServerIP);
+                IPHostEntry ipHostInfo = Dns.GetHostEntry(Server);
 
                 Console.WriteLine("Host info:");
                 int i = 0;
@@ -111,7 +111,7 @@ namespace Client
             {
                 // Establish the remote endpoint for the socket.
 
-                IPHostEntry ipHostInfo = Dns.GetHostEntry(ServerIP);
+                IPHostEntry ipHostInfo = Dns.GetHostEntry(Server);
 
                 Console.WriteLine("Host info:");
                 int i = 0;
