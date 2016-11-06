@@ -27,6 +27,16 @@ namespace GUIClient
         private string response;
 
 
+        private void AddText(string txt)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<string>(AddText), new object[] { txt });
+                return;
+            }
+            txtLog.AppendText(txt + Environment.NewLine);
+        }
+
         public GUIClient()
         {
             InitializeComponent();
@@ -68,7 +78,7 @@ namespace GUIClient
             }
             catch (Exception exp)
             {
-                Console.WriteLine("Error: " + exp.Message);
+                AddText("Error: " + exp.Message);
             }
         }
 
@@ -82,7 +92,7 @@ namespace GUIClient
                 // Complete the connection.
                 client.EndConnect(ar);
 
-                txtLog.AppendText("Socket connected to " + client.RemoteEndPoint.ToString());
+                AddText("Socket connected to " + client.RemoteEndPoint.ToString());
 
                 // Signal that the connection has been made.
                 connectDone.Set();
@@ -99,17 +109,16 @@ namespace GUIClient
             Send(client, txtToSend.Text + "<EOF>");
             sendDone.WaitOne();
 
-            // Receive the response from the remote device.
-            Receive(client);
-            receiveDone.WaitOne();
+            //// Receive the response from the remote device.
+            //Receive(client);
+            //receiveDone.WaitOne();
 
-            // Write the response to the console.
-            txtLog.AppendText("Response received : " + response);
+            //// Write the response to the console.
+            //txtLog.AppendText("Response received : " + response);
 
-            // Release the socket.
-            client.Shutdown(SocketShutdown.Both);
-            client.Close();
-
+            //// Release the socket.
+            //client.Shutdown(SocketShutdown.Both);
+            //client.Close();
         }
 
         private void Receive(Socket client)

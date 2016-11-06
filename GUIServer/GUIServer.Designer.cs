@@ -127,6 +127,7 @@
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "GUIServer";
             this.Text = "Server";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.GUIServer_FormClosed);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();

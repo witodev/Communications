@@ -15,25 +15,31 @@ namespace GUIServer
 {
     public partial class GUIServer : Form
     {
-        private List<ClientState> _clients = new List<ClientState>();
+        private List<ConnectedClient> _clients = new List<ConnectedClient>();
         private ManualResetEvent allDone = new ManualResetEvent(false);
-        private ManualResetEvent sendDone = new ManualResetEvent(false);
-        private int Port;
-        private ulong _clientCount = 0;
+        private ManualResetEvent receiveDone = new ManualResetEvent(false);
+        //private ManualResetEvent sendDone = new ManualResetEvent(false);       
+        //private ulong _clientCount = 0;
 
-        delegate void SetTextCallback(TextBox textBox, string text);
-        private void SetText(TextBox textBox, string text)
-        {
-            if (textBox.InvokeRequired)
-            {
-                SetTextCallback d = new SetTextCallback(SetText);
-                this.Invoke(d, new object[] { textBox, text });
-            }
-            else
-            {
-                textBox.Text += text + Environment.NewLine;
-            }
-        }
+        private int Port;
+        private Thread ListenForClients;
+        private bool working;
+        private IPAddress ipAddress;
+        private IPEndPoint localEndPoint;
+
+        //delegate void SetTextCallback(TextBox textBox, string text);
+        //private void SetText(TextBox textBox, string text)
+        //{
+        //    if (textBox.InvokeRequired)
+        //    {
+        //        SetTextCallback d = new SetTextCallback(SetText);
+        //        this.Invoke(d, new object[] { textBox, text });
+        //    }
+        //    else
+        //    {
+        //        textBox.Text += text + Environment.NewLine;
+        //    }
+        //}
 
         private void AddText(string txt)
         {
@@ -51,7 +57,7 @@ namespace GUIServer
             {
                 Invoke(new Action(UpdateClientList));
             }
-            var list = _clients.Select(x => x.id.ToString()).ToList();
+            var list = _clients.Where(x => x.state == EState.Connected).Select(x => "Client #" + x.ID.ToString()).ToList();
             lClients.DataSource = list;
         }
 
@@ -63,74 +69,111 @@ namespace GUIServer
         private void button1_Click(object sender, EventArgs e)
         {
             Port = int.Parse(txtPort.Text);
-            IPAddress ipAddress = IPAddress.Parse("0.0.0.0");
-            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, Port);
+            ipAddress = IPAddress.Parse("0.0.0.0");
+            localEndPoint = new IPEndPoint(ipAddress, Port);
+            working = true;
+            ListenForClients = new Thread(Listen);
 
+            ListenForClients.Start();
+        }
+
+        private void Listen()
+        {
             // Create a TCP/IP socket.
             Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            var thread = new Thread(() =>
+            
+            try
             {
-                try
+                listener.Bind(localEndPoint);
+                listener.Listen(100);
+                while (working)
                 {
-                    listener.Bind(localEndPoint);
-                    listener.Listen(100);
-                    while (true)
-                    {
-                        allDone.Reset(); // reset all signal
-                        AddText("Waiting for client...");
-                        listener.BeginAccept(new AsyncCallback(AcceptClient), listener); // listen for client
-                        allDone.WaitOne(); // wait for connection
-                    }
+                    allDone.Reset(); // reset all signal
+                    AddText("Waiting for client...");
+                    listener.BeginAccept(new AsyncCallback(AcceptClient), listener); // listen for client
+                    allDone.WaitOne(); // wait for connection
                 }
-                catch (Exception exp)
-                {
-                    SetText(txtLog, exp.Message);
-                }
-            });
-
-            thread.Start();
+            }
+            catch (Exception exp)
+            {
+                AddText(exp.Message);
+            }
+            
         }
 
         private void AcceptClient(IAsyncResult ar)
         {
-            // get listener
             var listener = (Socket)ar.AsyncState;
-            var clientSocket = listener.EndAccept(ar); // get client from listener
-            SetText(txtLog, "Client accepted #" + (++_clientCount) + " (connected=" + _clients.Count + ")");
+            var clientSocket = listener.EndAccept(ar);
 
-            allDone.Set(); // continue main thread (listening on socket)
+            allDone.Set();
 
-            // wait for client send data
-            var state = new ClientState();
-            state.socket = clientSocket;
-            state.id = _clientCount;
-            _clients.Add(state);
+            var client = new ConnectedClient();
+            client.ID = (ulong)_clients.Count;
+            client.socket = clientSocket;
+            client.state = EState.Connected;
 
+            _clients.Add(client);
             UpdateClientList();
 
-            clientSocket.BeginReceive(state.buffer, 0, ClientState.BUFFERSIZE, SocketFlags.None, new AsyncCallback(ReadClient), state);
+            while(client.state == EState.Connected)
+            {
+                receiveDone.Reset();
+                client.sb.Clear();
+                clientSocket.BeginReceive(client.buffer, 0, ConnectedClient.MaxBuffer, SocketFlags.None, new AsyncCallback(ReceiveClient), client);
+                receiveDone.WaitOne();
+                client.CheckStatus();
+            }
+
+            clientSocket.Shutdown(SocketShutdown.Both);
+            clientSocket.Close();
+            UpdateClientList();
         }
 
-        private void ReadClient(IAsyncResult ar)
+        private void ReceiveClient(IAsyncResult ar)
         {
-            var state = (ClientState)ar.AsyncState;
-            var clientSocket = state.socket;
-
-            if (clientSocket.Connected)
+            var client = (ConnectedClient)ar.AsyncState;
+            var socket = client.socket;
+            
+            receiveDone.Set();
+            int bytesRead;
+            try
             {
-                var dataRead = clientSocket.EndReceive(ar);
-                if (dataRead>0)
+                // Read data from the client socket. 
+                bytesRead = socket.EndReceive(ar);
+            }
+            catch (Exception exp)
+            {
+                client.state = EState.Disconected;
+                receiveDone.Set();
+                return;
+            }
+
+            if (bytesRead > 0)
+            {
+                // There  might be more data, so store the data received so far.
+                client.sb.Append(Encoding.ASCII.GetString(client.buffer, 0, bytesRead));
+
+                // Check for end-of-file tag. If it is not there, read 
+                // more data.
+                var content = client.sb.ToString();
+                if (content.IndexOf("<EOF>") > -1)
                 {
-                    state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, dataRead));
-                    AddText(state.sb.ToString());
-                    
+                    // All the data has been read from the 
+                    // client. Display it on the console.
+                    AddText(string.Format("Read {0} bytes from socket: {1}", content.Length, content));
+                }
+                else
+                {
+                    // Not all data received. Get more.
+                    socket.BeginReceive(client.buffer, 0, ConnectedClient.MaxBuffer, 0, new AsyncCallback(ReceiveClient), client);
                 }
             }
-            else
-            {
-                clientSocket.BeginReceive(state.buffer, 0, ClientState.BUFFERSIZE, SocketFlags.None, new AsyncCallback(ReadClient), state);
-            }
+        }
+
+        private void GUIServer_FormClosed(object sender, FormClosedEventArgs e)
+        {
+
         }
     }
 
