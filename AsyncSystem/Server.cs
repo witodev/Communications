@@ -20,7 +20,7 @@ namespace AsyncSystem
 
         // properties
         public int Port { get; set; }
-
+        public bool Working { get { return _working; } }
         // events
         public event EventHandler<User> Response;
 
@@ -118,8 +118,9 @@ namespace AsyncSystem
                     msg = user.sb.ToString(); // build whole message
                     //msg = msg.Substring(0, msg.Length - 5);
                     log("Client -> Server: " + msg); // log it
-                    // and response
-                    Response.Invoke(this, user);
+                    // and response if able
+                    if (Response != null)
+                        Response.Invoke(this, user);
                     SendToUser(user);
                     user.sb.Clear();
                 }

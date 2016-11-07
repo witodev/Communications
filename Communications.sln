@@ -14,6 +14,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncSystem", "AsyncSystem\AsyncSystem.csproj", "{725B2B8C-7AB9-4B6F-923E-3F47B8691718}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncSystemTest", "AsyncSystemTest\AsyncSystemTest.csproj", "{1C15F091-FC67-4B23-B7FF-612F90EC5566}"
+	ProjectSection(ProjectDependencies) = postProject
+		{725B2B8C-7AB9-4B6F-923E-3F47B8691718} = {725B2B8C-7AB9-4B6F-923E-3F47B8691718}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
