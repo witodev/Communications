@@ -69,7 +69,7 @@ namespace GUIServer
         {
             // Create a TCP/IP socket.
             Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            
+
             try
             {
                 listener.Bind(localEndPoint);
@@ -83,23 +83,32 @@ namespace GUIServer
                 }
                 AddText("END");
                 // todo: remove clients
+
+                foreach (var item in _clients)
+                {
+                    item.state = EState.Disconected;
+                }
             }
             catch (Exception exp)
             {
                 AddText(exp.Message);
-            }            
+            }
+            //listener.Shutdown(SocketShutdown.Both);
+            listener.Close();
+            //listener = null;
         }
 
         private void AcceptClient(IAsyncResult ar)
         {
             try
             {
+                if (working == false)
+                    return;
+
                 var listener = (Socket)ar.AsyncState;
                 var clientSocket = listener.EndAccept(ar);
 
                 allDone.Set();
-                if (working == false)
-                    return;
 
                 var client = new ConnectedClient();
                 client.ID = (ulong)_clients.Count;
@@ -128,8 +137,11 @@ namespace GUIServer
         private void ReceiveClient(IAsyncResult ar)
         {
             var client = (ConnectedClient)ar.AsyncState;
-            if (client.state == EState.Disconected)
+            if (client.state == EState.Disconected || working == false)
+            {
+                CloseClient(client);
                 return;
+            }
             var socket = client.socket;
             
             //receiveDone.Set();
@@ -241,6 +253,12 @@ namespace GUIServer
         }
 
         private void button2_Click(object sender, EventArgs e)
+        {
+            working = false;
+            allDone.Set();
+        }
+
+        private void GUIServer_FormClosing(object sender, FormClosingEventArgs e)
         {
             working = false;
             allDone.Set();
