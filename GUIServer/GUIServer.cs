@@ -107,7 +107,7 @@ namespace GUIServer
 
                 var listener = (Socket)ar.AsyncState;
                 var clientSocket = listener.EndAccept(ar);
-
+                
                 allDone.Set();
 
                 var client = new ConnectedClient();
