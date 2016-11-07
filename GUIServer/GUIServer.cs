@@ -13,23 +13,6 @@ using System.Windows.Forms;
 
 namespace GUIServer
 {
-    public class ClientState
-    {
-        public ulong id = 0;
-        public Socket socket = null; // client socket
-        public const int BUFFERSIZE = 1024; // size of receive buffer
-        public byte[] buffer = new byte[BUFFERSIZE]; // receive buffer
-        public StringBuilder sb = new StringBuilder(); // string builder
-        public bool close = false;
-        public void Close()
-        {
-            //if (close == false)
-            //    return;
-            socket.Shutdown(SocketShutdown.Both);
-            socket.Close();
-        }
-    }
-
     public partial class GUIServer : Form
     {
         private List<Socket> _clients = new List<Socket>();
@@ -193,5 +176,22 @@ namespace GUIServer
             _clients.Remove(clientSocket);
         }
 
+    }
+
+    public class ClientState
+    {
+        public ulong id = 0;
+        public Socket socket = null; // client socket
+        public const int BUFFERSIZE = 1024; // size of receive buffer
+        public byte[] buffer = new byte[BUFFERSIZE]; // receive buffer
+        public StringBuilder sb = new StringBuilder(); // string builder
+        public bool close = false;
+        public void Close()
+        {
+            //if (close == false)
+            //    return;
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
+        }
     }
 }
