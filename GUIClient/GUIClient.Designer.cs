@@ -37,6 +37,7 @@
             this.txtToSend = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.txtLog = new System.Windows.Forms.TextBox();
+            this.button3 = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
@@ -65,6 +66,7 @@
             this.flowLayoutPanel1.Controls.Add(this.txtIP);
             this.flowLayoutPanel1.Controls.Add(this.txtPort);
             this.flowLayoutPanel1.Controls.Add(this.button1);
+            this.flowLayoutPanel1.Controls.Add(this.button3);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
@@ -111,16 +113,19 @@
             // 
             // txtToSend
             // 
+            this.txtToSend.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtToSend.Location = new System.Drawing.Point(3, 3);
             this.txtToSend.Name = "txtToSend";
-            this.txtToSend.Size = new System.Drawing.Size(412, 20);
+            this.txtToSend.Size = new System.Drawing.Size(436, 20);
             this.txtToSend.TabIndex = 0;
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(421, 3);
+            this.button2.Dock = System.Windows.Forms.DockStyle.Right;
+            this.button2.Location = new System.Drawing.Point(445, 3);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.Size = new System.Drawing.Size(75, 20);
             this.button2.TabIndex = 1;
             this.button2.Text = "Send";
             this.button2.UseVisualStyleBackColor = true;
@@ -135,6 +140,16 @@
             this.txtLog.Size = new System.Drawing.Size(518, 278);
             this.txtLog.TabIndex = 2;
             // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(296, 3);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(75, 23);
+            this.button3.TabIndex = 3;
+            this.button3.Text = "Disconnect";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
             // GUIClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -142,7 +157,7 @@
             this.ClientSize = new System.Drawing.Size(524, 344);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "GUIClient";
-            this.Text = "Form1";
+            this.Text = "Client";
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
@@ -164,6 +179,7 @@
         private System.Windows.Forms.TextBox txtToSend;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.TextBox txtLog;
+        private System.Windows.Forms.Button button3;
     }
 }
 

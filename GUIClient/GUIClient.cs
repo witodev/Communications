@@ -105,16 +105,17 @@ namespace GUIClient
 
         private void button2_Click(object sender, EventArgs e)
         {
+            if (client == null || client.Connected == false)
+                return;
             // Send test data to the remote device.
             Send(client, txtToSend.Text + "<EOF>");
             sendDone.WaitOne();
 
-            //// Receive the response from the remote device.
-            //Receive(client);
+            // Receive the response from the remote device.
+            Receive(client);
             //receiveDone.WaitOne();
 
-            //// Write the response to the console.
-            //txtLog.AppendText("Response received : " + response);
+            // Write the response to the console.
 
             //// Release the socket.
             //client.Shutdown(SocketShutdown.Both);
@@ -154,9 +155,21 @@ namespace GUIClient
                 {
                     // There might be more data, so store the data received so far.
                     state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesRead));
-
-                    // Get the rest of the data.
-                    client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
+                    var content = state.sb.ToString();
+                    if (content.IndexOf("<EOF>") > -1)
+                    {
+                        // All the data has been read from the 
+                        // client. Display it on the console.
+                        //AddText(string.Format("Read {0} bytes from socket: {1}", content.Length, content));
+                        response = content;
+                        receiveDone.Set();
+                        AddText("Response received : " + response);
+                    }
+                    else
+                    {
+                        // Not all data received. Get more.
+                        client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
+                    }
                 }
                 else
                 {
@@ -167,6 +180,7 @@ namespace GUIClient
                     }
                     // Signal that all bytes have been received.
                     receiveDone.Set();
+                    AddText("Response received : " + response);
                 }
             }
             catch (Exception e)
@@ -202,6 +216,15 @@ namespace GUIClient
             {
                 Console.WriteLine(e.ToString());
             }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (client == null)
+                return;
+            client.Shutdown(SocketShutdown.Both);
+            client.Close();
+            client = null;
         }
     }
 }

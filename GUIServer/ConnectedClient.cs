@@ -20,6 +20,15 @@ namespace GUIServer
             else
                 state = EState.Disconected;
         }
+
+        internal void Close()
+        {
+            if (state == EState.Disconected || socket == null)
+                return;
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
+            //socket = null;
+        }
     }
 
     public enum EState : int

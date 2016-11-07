@@ -17,29 +17,15 @@ namespace GUIServer
     {
         private List<ConnectedClient> _clients = new List<ConnectedClient>();
         private ManualResetEvent allDone = new ManualResetEvent(false);
-        private ManualResetEvent receiveDone = new ManualResetEvent(false);
-        //private ManualResetEvent sendDone = new ManualResetEvent(false);       
+        //private ManualResetEvent receiveDone = new ManualResetEvent(false);
+        //private ManualResetEvent sendDone = new ManualResetEvent(false);
         //private ulong _clientCount = 0;
 
         private int Port;
-        private Thread ListenForClients;
+        private Thread ListenThread;
         private bool working;
         private IPAddress ipAddress;
         private IPEndPoint localEndPoint;
-
-        //delegate void SetTextCallback(TextBox textBox, string text);
-        //private void SetText(TextBox textBox, string text)
-        //{
-        //    if (textBox.InvokeRequired)
-        //    {
-        //        SetTextCallback d = new SetTextCallback(SetText);
-        //        this.Invoke(d, new object[] { textBox, text });
-        //    }
-        //    else
-        //    {
-        //        textBox.Text += text + Environment.NewLine;
-        //    }
-        //}
 
         private void AddText(string txt)
         {
@@ -57,8 +43,7 @@ namespace GUIServer
             {
                 Invoke(new Action(UpdateClientList));
             }
-            var list = _clients.Where(x => x.state == EState.Connected).Select(x => "Client #" + x.ID.ToString()).ToList();
-            lClients.DataSource = list;
+            _clients = _clients.Where(x => x.state == EState.Connected).Select(x => x).ToList();            
         }
 
         public GUIServer()
@@ -68,16 +53,19 @@ namespace GUIServer
 
         private void button1_Click(object sender, EventArgs e)
         {
+            if (ListenThread != null && ListenThread.IsAlive == true)
+                return;
+
             Port = int.Parse(txtPort.Text);
             ipAddress = IPAddress.Parse("0.0.0.0");
             localEndPoint = new IPEndPoint(ipAddress, Port);
             working = true;
-            ListenForClients = new Thread(Listen);
+            ListenThread = new Thread(ListenForClients);
 
-            ListenForClients.Start();
+            ListenThread.Start();
         }
 
-        private void Listen()
+        private void ListenForClients()
         {
             // Create a TCP/IP socket.
             Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -94,12 +82,12 @@ namespace GUIServer
                     allDone.WaitOne(); // wait for connection
                 }
                 AddText("END");
+                // todo: remove clients
             }
             catch (Exception exp)
             {
                 AddText(exp.Message);
-            }
-            
+            }            
         }
 
         private void AcceptClient(IAsyncResult ar)
@@ -110,6 +98,8 @@ namespace GUIServer
                 var clientSocket = listener.EndAccept(ar);
 
                 allDone.Set();
+                if (working == false)
+                    return;
 
                 var client = new ConnectedClient();
                 client.ID = (ulong)_clients.Count;
@@ -119,22 +109,30 @@ namespace GUIServer
                 _clients.Add(client);
                 UpdateClientList();
 
-                clientSocket.BeginReceive(client.buffer, 0, ConnectedClient.MaxBuffer, SocketFlags.None, new AsyncCallback(ReceiveClient), client);
-
+                ReceiveFromClient(client);
             }
             catch (Exception exp)
             {
+                AddText("Accept error: " + exp.Message);
                 working = false;
                 allDone.Set();
             }
         }
 
+        private void ReceiveFromClient(ConnectedClient client)
+        {
+            var clientSocket = client.socket;
+            clientSocket.BeginReceive(client.buffer, 0, ConnectedClient.MaxBuffer, SocketFlags.None, new AsyncCallback(ReceiveClient), client);
+        }
+
         private void ReceiveClient(IAsyncResult ar)
         {
             var client = (ConnectedClient)ar.AsyncState;
+            if (client.state == EState.Disconected)
+                return;
             var socket = client.socket;
             
-            receiveDone.Set();
+            //receiveDone.Set();
             int bytesRead;
             try
             {
@@ -143,6 +141,7 @@ namespace GUIServer
             }
             catch (Exception exp)
             {
+                AddText("Receive error: " + exp.Message);
                 client.state = EState.Disconected;
                 // close connection
                 CloseClient(client);
@@ -162,8 +161,11 @@ namespace GUIServer
                     // All the data has been read from the 
                     // client. Display it on the console.
                     AddText(string.Format("Read {0} bytes from socket: {1}", content.Length, content));
+
+                    SendToClient(client);
+
                     client.sb.Clear();
-                    socket.BeginReceive(client.buffer, 0, ConnectedClient.MaxBuffer, SocketFlags.None, new AsyncCallback(ReceiveClient), client);
+                    ReceiveFromClient(client);
                 }
                 else
                 {
@@ -173,11 +175,57 @@ namespace GUIServer
             }
         }
 
+        private void SendToClient(ConnectedClient client)
+        {
+            //sendDone.Reset();
+            var socket = client.socket;
+            var input = client.sb.ToString();
+            input = input.Substring(0, input.Length - 5);
+
+            var data = Encoding.ASCII.GetBytes(GetResponse(input) + "<EOF>");
+
+            socket.BeginSend(data, 0, data.Length, SocketFlags.None, new AsyncCallback(SendClient), socket);
+        }
+
+        private string GetResponse(string input)
+        {
+            var lines = txtResp.Lines;
+            var resp = lines.ToDictionary(o => o.Split('|')[0], o => o.Split('|')[1]);
+
+            if (resp.ContainsKey(input))
+                return resp[input];
+            else
+                return "notihing";
+        }
+
+        private void SendClient(IAsyncResult ar)
+        {
+            try
+            {
+                // Retrieve the socket from the state object.
+                Socket socket = (Socket)ar.AsyncState;
+
+                // Complete sending the data to the remote device.
+                int data = socket.EndSend(ar);
+                AddText(string.Format("Sent {0} bytes to client.", data));
+
+                //sendDone.Set();
+                //CloseClient(handler);
+            }
+            catch (Exception e)
+            {
+                AddText("Send error: " + e.Message);
+            }
+        }
+
         private void CloseClient(ConnectedClient client)
         {
             var socket = client.socket;
-            socket.Shutdown(SocketShutdown.Both);
-            socket.Close();
+            if (socket.Connected == true)
+            {
+                socket.Shutdown(SocketShutdown.Both);
+                socket.Close();
+            }
             _clients.Remove(client);
             UpdateClientList();
         }
